@@ -16,7 +16,7 @@ export default function ClientDetailPage() {
   const [hub, setHub] = useState<Hub | null>(null)
   const [error, setError] = useState('')
   const [openWorksite, setOpenWorksite] = useState(false)
-  const [editWorksite, setEditWorksite] = useState<{ id: number; name: string; address: string | null } | null>(null)
+  const [editWorksite, setEditWorksite] = useState<{ id: number; name: string; legalName: string | null; address: string | null } | null>(null)
 
   async function refresh() {
     setHub(await getClientHub(clientId))
@@ -32,6 +32,7 @@ export default function ClientDetailPage() {
       await createWorksite({
         clientId,
         name: String(formData.get('name') ?? ''),
+        legalName: String(formData.get('legalName') ?? ''),
         address: String(formData.get('address') ?? ''),
       })
       await refresh()
@@ -102,7 +103,7 @@ export default function ClientDetailPage() {
                     <p className="font-semibold">{ws.name}</p>
                   </div>
                   <div className="flex gap-2 text-xs">
-                    <button type="button" onClick={() => setEditWorksite({ id: ws.id, name: ws.name, address: ws.address })} className="text-amber-700">
+                    <button type="button" onClick={() => setEditWorksite({ id: ws.id, name: ws.name, legalName: ws.legalName, address: ws.address })} className="text-amber-700">
                       Editar
                     </button>
                     <button
@@ -122,6 +123,7 @@ export default function ClientDetailPage() {
                     </button>
                   </div>
                 </div>
+                {ws.legalName && <p className="mt-1 text-xs text-slate-600">Facturación: {ws.legalName}</p>}
                 <p className="mt-1 text-xs text-slate-500">{ws.address || 'Sin dirección'}</p>
               </article>
             ))}
@@ -189,6 +191,7 @@ export default function ClientDetailPage() {
                 await updateWorksite({
                   id: editWorksite.id,
                   name: String(fd.get('name') ?? ''),
+                  legalName: String(fd.get('legalName') ?? ''),
                   address: String(fd.get('address') ?? ''),
                 })
                 await refresh()
@@ -201,7 +204,8 @@ export default function ClientDetailPage() {
           >
             <h2 className="text-lg font-bold">Editar obra</h2>
             <div className="mt-4 flex flex-col gap-3">
-              <input name="name" required defaultValue={editWorksite.name} className="rounded-lg border px-3 py-2.5 text-sm" />
+              <input name="name" required defaultValue={editWorksite.name} placeholder="Nombre / referencia" className="rounded-lg border px-3 py-2.5 text-sm" />
+              <input name="legalName" defaultValue={editWorksite.legalName ?? ''} placeholder="Razón social para facturar" className="rounded-lg border px-3 py-2.5 text-sm" />
               <input name="address" defaultValue={editWorksite.address ?? ''} className="rounded-lg border px-3 py-2.5 text-sm" />
               <button className="rounded-lg bg-amber-500 py-2.5 text-sm font-semibold text-white">Guardar</button>
             </div>
@@ -219,7 +223,8 @@ export default function ClientDetailPage() {
               </button>
             </div>
             <div className="flex flex-col gap-3">
-              <input name="name" required placeholder="Nombre de la obra" className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm" />
+              <input name="name" required placeholder="Nombre / referencia de la obra" className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm" />
+              <input name="legalName" placeholder="Razón social para facturar (si difiere)" className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm" />
               <input name="address" placeholder="Dirección" className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm" />
               <button className="mt-2 rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-white">Guardar obra</button>
             </div>

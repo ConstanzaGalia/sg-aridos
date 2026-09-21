@@ -6,7 +6,7 @@ import { createWorksite, deleteWorksite, listWorksites, updateWorksite } from '@
 import { listClients } from '@/app/actions/clients'
 
 type Client = { id: number; name: string }
-type Worksite = { id: number; name: string; address: string | null; clientName: string | null; status: string }
+type Worksite = { id: number; name: string; legalName: string | null; address: string | null; clientName: string | null; status: string }
 
 export default function WorksitesPage() {
   const [items, setItems] = useState<Worksite[]>([])
@@ -30,6 +30,7 @@ export default function WorksitesPage() {
       await createWorksite({
         clientId: Number(formData.get('clientId')),
         name: String(formData.get('name') ?? ''),
+        legalName: String(formData.get('legalName') ?? ''),
         address: String(formData.get('address') ?? ''),
       })
       await refresh()
@@ -45,6 +46,7 @@ export default function WorksitesPage() {
       await updateWorksite({
         id: edit.id,
         name: String(formData.get('name') ?? ''),
+        legalName: String(formData.get('legalName') ?? ''),
         address: String(formData.get('address') ?? ''),
         status: String(formData.get('status') ?? 'active'),
       })
@@ -107,6 +109,7 @@ export default function WorksitesPage() {
                 </div>
               </div>
               <h3 className="mt-4 font-bold">{item.name}</h3>
+              {item.legalName && <p className="mt-1 text-sm text-slate-600">Facturación: {item.legalName}</p>}
               <p className="mt-1 text-sm text-slate-500">{item.clientName ?? 'Cliente'}</p>
               <p className="mt-3 text-xs text-slate-400">{item.address || 'Sin dirección'} · {item.status}</p>
             </article>
@@ -123,7 +126,8 @@ export default function WorksitesPage() {
               </button>
             </div>
             <div className="flex flex-col gap-3">
-              <input name="name" required placeholder="Nombre de la obra" className="rounded-lg border px-3 py-2.5 text-sm" />
+              <input name="name" required placeholder="Nombre / referencia de la obra" className="rounded-lg border px-3 py-2.5 text-sm" />
+              <input name="legalName" placeholder="Razón social para facturar (si difiere)" className="rounded-lg border px-3 py-2.5 text-sm" />
               <select name="clientId" required className="rounded-lg border px-3 py-2.5 text-sm">
                 <option value="">Cliente</option>
                 {clients.map((c) => (
@@ -149,6 +153,7 @@ export default function WorksitesPage() {
             </div>
             <div className="flex flex-col gap-3">
               <input name="name" required defaultValue={edit.name} className="rounded-lg border px-3 py-2.5 text-sm" />
+              <input name="legalName" defaultValue={edit.legalName ?? ''} placeholder="Razón social para facturar" className="rounded-lg border px-3 py-2.5 text-sm" />
               <input name="address" defaultValue={edit.address ?? ''} className="rounded-lg border px-3 py-2.5 text-sm" />
               <select name="status" defaultValue={edit.status} className="rounded-lg border px-3 py-2.5 text-sm">
                 <option value="active">Activa</option>

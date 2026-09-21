@@ -23,6 +23,7 @@ export async function listWorksites(clientId?: number) {
     .select({
       id: worksites.id,
       name: worksites.name,
+      legalName: worksites.legalName,
       address: worksites.address,
       status: worksites.status,
       clientId: worksites.clientId,
@@ -34,7 +35,7 @@ export async function listWorksites(clientId?: number) {
     .orderBy(desc(worksites.createdAt))
 }
 
-export async function createWorksite(input: { clientId: number; name: string; address?: string; notes?: string }) {
+export async function createWorksite(input: { clientId: number; name: string; legalName?: string; address?: string; notes?: string }) {
   const userId = await getUserId()
   const name = input.name.trim()
   if (!name || !input.clientId) throw new Error('La obra y el cliente son obligatorios')
@@ -42,6 +43,7 @@ export async function createWorksite(input: { clientId: number; name: string; ad
     userId,
     clientId: input.clientId,
     name,
+    legalName: input.legalName?.trim() || null,
     address: input.address?.trim(),
     notes: input.notes?.trim(),
   })
@@ -49,7 +51,7 @@ export async function createWorksite(input: { clientId: number; name: string; ad
   revalidatePath(`/clientes/${input.clientId}`)
 }
 
-export async function updateWorksite(input: { id: number; name: string; address?: string; notes?: string; status?: string }) {
+export async function updateWorksite(input: { id: number; name: string; legalName?: string; address?: string; notes?: string; status?: string }) {
   const userId = await getUserId()
   const name = input.name.trim()
   if (!name) throw new Error('El nombre es obligatorio')
@@ -59,6 +61,7 @@ export async function updateWorksite(input: { id: number; name: string; address?
     .update(worksites)
     .set({
       name,
+      ...(input.legalName !== undefined ? { legalName: input.legalName.trim() || null } : {}),
       address: input.address?.trim() || null,
       notes: input.notes?.trim() || null,
       status: input.status?.trim() || 'active',

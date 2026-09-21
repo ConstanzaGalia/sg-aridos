@@ -147,10 +147,31 @@ export async function getQuoteWithItems(id: number) {
   if (!quote) throw new Error('Cotización no encontrada')
   const items = await db.select().from(quoteItems).where(eq(quoteItems.quoteId, id))
   const [worksite] = quote.worksiteId
-    ? await db.select({ name: worksites.name }).from(worksites).where(eq(worksites.id, quote.worksiteId))
+    ? await db
+        .select({ name: worksites.name, legalName: worksites.legalName, address: worksites.address })
+        .from(worksites)
+        .where(eq(worksites.id, quote.worksiteId))
     : [undefined]
-  const [client] = await db.select({ name: clients.name }).from(clients).where(eq(clients.id, quote.clientId))
-  return { quote, items, worksiteName: worksite?.name ?? null, clientName: client?.name ?? null }
+  const [client] = await db
+    .select({
+      name: clients.name,
+      legalName: clients.legalName,
+      email: clients.email,
+      phone: clients.phone,
+    })
+    .from(clients)
+    .where(eq(clients.id, quote.clientId))
+  return {
+    quote,
+    items,
+    worksiteName: worksite?.name ?? null,
+    worksiteLegalName: worksite?.legalName ?? null,
+    worksiteAddress: worksite?.address ?? null,
+    clientName: client?.name ?? null,
+    clientLegalName: client?.legalName ?? null,
+    clientEmail: client?.email ?? null,
+    clientPhone: client?.phone ?? null,
+  }
 }
 
 export async function deleteLineFromQuote(id: number) {

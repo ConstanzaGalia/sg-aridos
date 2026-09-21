@@ -19,7 +19,7 @@ import {
 import { listWorksites } from '@/app/actions/operations'
 import { formatMoney } from '@/lib/money'
 import { cn } from '@/lib/utils'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Download } from 'lucide-react'
 
 type CatalogItem = { id: number; name: string; kind: string; pricingMode: string }
 type Quote = {
@@ -416,9 +416,19 @@ function QuotesPage() {
               <div className="rounded-2xl border border-amber-200 bg-amber-50/40 p-6">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <h2 className="font-bold">Cotización #{selectedQuoteId}</h2>
-                  <button type="button" onClick={removeQuote} className="text-xs font-semibold text-red-600 hover:underline">
-                    Eliminar cotización
-                  </button>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <a
+                      href={`/api/quotes/${selectedDetail.quote.id}/pdf`}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 hover:border-amber-300 hover:text-amber-900"
+                      download
+                    >
+                      <Download className="size-3.5" aria-hidden />
+                      Descargar PDF
+                    </a>
+                    <button type="button" onClick={removeQuote} className="text-xs font-semibold text-red-600 hover:underline">
+                      Eliminar cotización
+                    </button>
+                  </div>
                 </div>
                 <p className="mt-1 text-sm text-slate-600">
                   {selectedDetail.clientName} · {selectedDetail.worksiteName ?? 'Sin obra'} ·{' '}

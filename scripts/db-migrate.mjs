@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import pg from 'pg'
@@ -23,7 +23,11 @@ function loadEnvFile() {
 }
 
 loadEnvFile()
-const sql = readFileSync(join(__dirname, '../lib/db/migrations/001_payments_expenses.sql'), 'utf8')
+
+const migrationsDir = join(__dirname, '../lib/db/migrations')
+const migrationFiles = readdirSync(migrationsDir)
+  .filter((name) => name.endsWith('.sql'))
+  .sort()
 
 const connectionString = process.env.DATABASE_URL
 if (!connectionString) {
@@ -33,8 +37,11 @@ if (!connectionString) {
 
 const pool = new pg.Pool({ connectionString })
 try {
-  await pool.query(sql)
-  console.log('Migración 001 aplicada correctamente.')
+  for (const file of migrationFiles) {
+    const sql = readFileSync(join(migrationsDir, file), 'utf8')
+    await pool.query(sql)
+    console.log(`Migración aplicada: ${file}`)
+  }
 } finally {
   await pool.end()
 }
